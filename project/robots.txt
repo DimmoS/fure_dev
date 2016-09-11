@@ -1,0 +1,4 @@
+User-Agent: *
+Disallow: /admin
+Disallow: /cgi-bin
+Host: furecms.ml

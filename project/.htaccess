@@ -1,0 +1,105 @@
+AddDefaultCharset UTF-8
+Options -Indexes
+DirectoryIndex index.php
+
+ErrorDocument 403 /stop/
+ErrorDocument 404 /error/
+ErrorDocument 500 /internal/
+
+RemoveHandler .php
+AddType application/x-httpd-php .php
+
+<IfModule mod_expires.c>
+ExpiresActive On
+ExpiresByType image/jpg "access plus 1 year"
+ExpiresByType image/jpeg "access plus 1 year"
+ExpiresByType image/gif "access plus 1 year"
+ExpiresByType image/png "access plus 1 year"
+ExpiresByType text/css "access plus 1 month"
+ExpiresByType application/pdf "access plus 1 month"
+ExpiresByType text/x-javascript "access plus 1 month"
+ExpiresByType image/x-icon "access plus 1 year"
+ExpiresDefault "access plus 1 days"
+</IfModule>
+
+<IfModule mod_gzip.c>
+mod_gzip_on Yes
+mod_gzip_dechunk Yes
+mod_gzip_item_include file \.(html?|css|js|php|tpl)$
+mod_gzip_item_include handler ^cgi-script$
+mod_gzip_item_include mime ^text\.*
+mod_gzip_item_include mime ^application/x-javascript.*
+mod_gzip_item_exclude mime ^image\.*
+mod_gzip_item_exclude rspheader ^Content-Encoding:.*gzip.* 
+</IfModule>
+
+<IfModule mod_headers.c>
+<FilesMatch "\.(js|css|xml|gz|html)$">
+   Header append Vary: Accept-Encoding
+</FilesMatch>
+</IfModule>
+
+<FilesMatch ".(gif|jpg|jpeg|png|ico|js|css|pdf)$">
+Header set Cache-Control "max-age=2592000"
+</FilesMatch>
+
+<FilesMatch "(?i)((\.html|\.ini|\.log))">
+ Order deny,allow
+ Deny from all
+</FilesMatch>
+
+php_value upload_max_filesize 15M
+php_value post_max_size 10M
+php_value max_execution_time 240
+php_value max_input_time 180
+
+php_flag session.use_trans_sid off
+php_flag session.use_cookies on
+php_flag register_globals off
+php_flag magic_quotes_gpc off
+php_flag magic_quotes_runtime off
+
+php_value mbstring.internal_encoding UTF-8
+php_value output_buffering 2048
+
+php_flag  display_errors 1
+php_flag  display_startup_errors 1
+
+php_value  error_reporting -1
+
+RewriteEngine On
+RewriteBase /
+
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{ENV:REDIRECT_FINISH} !^$
+RewriteRule ^ - [L]
+
+RewriteCond %{HTTPS} off
+RewriteCond %{HTTP:X-Forwarded-Proto} !https
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+
+RewriteCond %{HTTP_HOST} ^www\.(.*) [NC]
+RewriteRule ^/?(.*) https://%1/$1 [L,R=permanent]
+
+RewriteCond %{THE_REQUEST} ^.*/index.php
+RewriteRule ^(.*)index.php$ https://%{HTTP_HOST}/$1 [R=301,L]
+
+Options +FollowSymLinks
+RewriteCond %{HTTP_HOST} ^www.%{HTTP_HOST}
+RewriteRule (.*) https://%{HTTP_HOST}/$1 [R=301,L]
+RewriteCond %{THE_REQUEST} ^[A-Z]{1,20}\ /index\.html\ HTTP/
+RewriteRule ^index\.html$ https://%{HTTP_HOST} [R=301,L]
+RewriteCond %{THE_REQUEST} ^[A-Z]{1,20}\ /index\.php\ HTTP/
+RewriteRule ^index\.php$ https://%{HTTP_HOST} [R=301,L]
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_URI} !(.*)/$
+RewriteRule ^(.*)$ /$1/ [R=301,L]
+
+RewriteCond %{HTTP_REFERER} !^$
+RewriteCond %{HTTP_REFERER} !^http(s)?://(www\.)?%{HTTP_HOST} [NC]
+RewriteRule \.(jpg|jpeg|png|gif)$ /error/ [NC,R,L]
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule .* index.php [E=FINISH:1,L,QSA]

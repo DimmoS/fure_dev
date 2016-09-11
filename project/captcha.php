@@ -9,7 +9,7 @@ $color1 = rand(65, 184);
 $color2 = rand(36, 237);
 $color3 = rand(42, 132);
 $rgb=0xffffff;
-$txt_box=imagettfbbox(25, 0, 'styles/fonts/captcha.ttf', $code);
+$txt_box=imagettfbbox(25, 0, 'assets/fonts/captcha.ttf', $code);
 if($txt_box[0]<0){$txt_box[0]=$txt_box[0]*(-1);}
 if($txt_box[1]<0){$txt_box[1]=$txt_box[1]*(-1);}
 if($txt_box[2]<0){$txt_box[2]=$txt_box[2]*(-1);}
@@ -22,7 +22,7 @@ $box_width=($txt_box[0]+$txt_box[2]+$txt_box[4]+$txt_box[6])/2;
 $box_height=($txt_box[1]+$txt_box[3]+$txt_box[5]+$txt_box[7])/2;
 $img = imagecreatetruecolor($box_width+1,$box_height+1);
 imagefill($img, 0, 0, $rgb);
-imagettftext($img, 22, 0, 1, $box_height-2, imageColorAllocate($img, $color1,$color2,$color3), 'styles/fonts/captcha.ttf', $code);
+imagettftext($img, 22, 0, 1, $box_height-2, imageColorAllocate($img, $color1,$color2,$color3), 'assets/fonts/captcha.ttf', $code);
 imagepng($img);
 imagedestroy($img);
 ?>
